@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Queue
+{
+  int* a;
+  int head;
+  int tail;
+  int size;
+}Queue;
+
+void InitQueue(Queue**, int size);
+void Enqueue(Queue**, int);
+void Dequeue(Queue**);
+void KillQueue(Queue**);
+
+int main()
+{
+  Queue *q = (Queue*)malloc(sizeof(Queue));
+  int size = 10;
+  InitQueue(&q, size);
+
+  int i=0;
+  for(i=0; i < size+1; i++)
+    {
+      Enqueue(&q, i);
+    }
+
+  for(i=0; i < size; i++)
+    {
+      printf("%d\t", q->a[i]);
+    }
+
+  printf("\n");
+
+  for(i=0; i < size; i++)
+    {
+      Dequeue(&q);
+    }
+  printf("%d\t%d\n", q->head, q->tail);
+
+  return 0;
+}
+
+void InitQueue(Queue **q, int size)
+{
+  Queue *temp = *q;
+temp->a = (int *)malloc(size * sizeof(int));
+  temp->size = size;
+  temp->head = 0;
+  temp->tail = 0;
+  return;
+}
+
+void Enqueue(Queue **q, int num)
+{
+  Queue *temp = *q;
+
+  if(!temp)
+    {
+      printf("No queue yet\n");
+      return;
+    }
+  if(temp->tail == temp->size)
+    {
+      printf("Queue full\n");
+      return;
+    }  
+    temp->a[temp->tail] = num;
+    (temp->tail)++;
+}
+
+void Dequeue(Queue **q)
+{
+  Queue *temp = *q;
+ if(!temp)
+    {
+      printf("No queue yet\n");
+      return;
+    }
+ if(temp->tail - temp->head == 0)
+   {
+     printf("empty queue\n");
+     return;
+   }
+ printf("%d\n", temp->a[temp->head]);
+ (temp->head)++;
+}
+
+void KillQueue(Queue**q)
+{
+  Queue *temp = *q;
+  free(temp->a);
+  free(temp);
+  free(*q);
+}
