@@ -1,0 +1,77 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Stack
+{
+  int *a;
+  int top;
+  int size;
+}Stack;
+
+void InitStack(Stack **s, int size);
+void KillStack(Stack **s);
+void Push(Stack **s, int num);
+void Pop(Stack **s);
+
+
+int main()
+{
+  Stack *s = (Stack *)malloc(sizeof(Stack));
+  int size = 10;
+  InitStack(&s, size);
+
+  int i=0;
+  for(i=0; i<size+1; i++)
+    {
+      Push(&s, i);
+    }
+  for(i=0; i<size+1; i++)
+    {
+      Pop(&s);
+    }
+  return 0;
+}
+
+void InitStack(Stack **s, int size)
+{
+  Stack *temp = *s;
+  temp->a = (int *)malloc(size * sizeof(int));
+  temp->top = -1;
+  temp->size = size;
+}
+
+void Push(Stack **s, int num)
+{
+  Stack *temp = *s;
+  if(!temp)
+    {
+      printf("NO STACK!\n");
+      return;
+    }
+  if(temp->top >= temp->size-1)
+    {
+      printf("STACK FULL!\n");
+      return;
+    }
+  temp->a[++temp->top] = num;
+}
+
+void Pop(Stack **s)
+{
+  Stack *temp = *s;
+  if(!temp)
+    {
+      printf("NO STACK!\n");
+      return;
+    }
+
+  if(temp->top == -1)
+    {
+      printf("STACK EMPTY\n");
+      return;
+    }
+
+  printf("%d\n", temp->a[(temp->top)]);
+  temp->top--;
+  return;
+}
