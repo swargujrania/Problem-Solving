@@ -1,0 +1,57 @@
+#include <stdio.h>
+
+int main()
+{
+	int n, k, i =0;
+	scanf("%d %d", &n, &k);
+	
+	int val[n];
+	for(i = 0; i< n; i++)
+	{
+		scanf("%d", val+i);
+	}
+	
+	int minProduct = GetMinProduct(val, n, k);
+	printf("%d\n", minProduct);
+	return 0;
+}
+
+int GetMinSourceIndex(int *val, int current, int k)
+{
+	if(current == 0)
+	{
+		return current;
+	}
+	
+	int min = current-1;
+	int lowerIndex = (current - k >= 0) ? current-k : 0;
+	int i=0;
+	for(i= current-1; i >= lowerIndex; i--)
+	{
+		min = (val[min] >= val[i]) ? i : min;		
+	}
+	
+	return min;
+}
+int GetMinProduct(int *val, int n, int k)
+{
+	if(!val)
+	{
+		return 0;
+	}
+	if(k > n)
+	{
+		return 0;
+	}
+	int product = val[n-1];
+	int i=0;
+	for(i=n-1; i>=0; )
+	{
+		int min = GetMinSourceIndex(val, i, k);
+		product *= val[min];
+		i = (min == 0) ? -1 : min;
+	}
+	
+	return product;
+}
+
