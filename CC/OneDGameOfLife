@@ -1,0 +1,179 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
+
+typedef struct Cell
+{
+  int current;
+  int prev;
+  int changed;
+}Cell;
+
+void ConvertToCellArray(char *s, int length, Cell* life);
+void PrintCurrentCellArray(Cell *life, int length);
+void PrintPreviousCellArray(Cell *life, int length);
+void SetPrevVal(Cell *cell, int value);
+int CheckCells(Cell *c1, Cell *c2);
+int PropogateAndCheck(Cell **life, int index, int length);
+void GetPreviousState(Cell **life, int length);
+
+
+int main()
+{
+  char input[10];
+  scanf("%s", input); 
+  int length = strlen(input);
+  Cell *life = (Cell *)malloc(length * sizeof(Cell));
+  ConvertToCellArray(input, length, life);
+  PrintCurrentCellArray(life, length);
+  GetPreviousState(&life, length);
+  return 0;
+}
+
+void ConvertToCellArray(char *s, int length, Cell* life)
+{
+  int i=0;
+  for(i =0; i < length; i++)
+    {
+      if(s[i] != '1' && s[i] != '0')
+	{
+	  printf("Invalid string..");
+	  return;
+	}
+      life[i].current = (s[i] - '0');
+      life[i].prev = -1;
+      life[i].changed = -1;      
+    }
+}
+
+void PrintCurrentCellArray(Cell *life, int length)
+{
+  int i=0;
+  for(i=0; i<length; i++)
+    {
+      printf("%d", life[i].current);
+    }
+}
+
+void PrintPreviousCellArray(Cell *life, int length)
+{
+  int i=0;
+  for(i=0; i<length; i++)
+    {
+      printf("%d", life[i].prev);
+    }
+}
+/*
+void SetPrevVal(Cell *cell, int value)
+{
+  cell->prev = value;
+  cell->changed = (cell->prev == cell->current) ? 0 : 1;
+  return;
+}
+*/
+
+int CheckCells(Cell *c1, Cell *c2)
+{
+  return ((c1->current == c2->current) && (c1->prev == c2->prev) && (c1->changed == c2->changed)) ? 1 : 0;
+}
+
+
+int PropogateAndCheck(Cell **life, int index, int length)
+{
+  Cell *testNode = life[(index-1)%length];
+  int terminal = (index-1)%length;
+  int temp = (index+1)%length;
+
+  while(temp != terminal)
+    {
+      if(life[temp]->changed == 1)
+	{
+	  int j = life[(temp-1)%length]->prev;
+	  SetPrevVal(life[(temp+1)%length], 1-j);	    
+	}
+      else
+	{
+	  int j = life[(temp-1)%length]->prev;
+	  SetPrevVal(life[(temp+1)%length], j);
+	}
+      temp = (temp + 1) % length;
+    }
+  if(CheckCells(life[temp], testNode))
+    {
+      return 1;
+    }
+  return 0;
+}
+
+void GetPreviousState(Cell **life, int length)
+{
+  int index,i,j = 0;
+  int solution = 0;
+  int prevState[length];
+
+  int ch = 0;
+  for(ch = 0; ch < 2; ch++)
+    {
+      life[index]->changed = ch;
+      for(j=0; j<2; j++)
+	{
+	  
+	  if(ch == 0)
+	    {
+	      life[index]->prev = life[index]->current;	
+	      //SetPrevVal(life[(index+1)%length], j);
+	      Cell cell = *(life[1]);
+	      cell->prev = j;
+	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	     
+	      //SetPrevVal(life[(index-1) % length], j);
+	      cell = *(life[length-1]);
+	      cell->prev = j;
+	      cell->changed = (cell->prev == cell->current) ? 0 : 1;  
+	    }
+	  else
+	    {
+	      life[index]->prev = 1-life[index]->current;
+	      //SetPrevVal(life[(index+1) % length], 1-j);
+	      Cell cell = *(life[1]);
+	      cell->prev = 1-j;
+	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	     
+	      //SetPrevVal(life[(index-1) % length], j);
+	      Cell cell = *(life[length-1]);
+	      cell->prev = j;
+	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	     
+	    }
+
+	  solution += PropogateAndCheck(life, index, length);
+	  if(solution == 1)
+	    {
+	      int prevState[length];
+	      for(i=0; i<length; i++)
+		{
+		  prevState[i] = life[i]->prev;
+		}
+	    }
+	}
+      if(solution > 1)
+	{
+	  printf("Multiple Solutions");
+	  return;
+	}
+    }
+  if(solution == 0)
+    {
+      printf("No Solution");
+      return;
+    }
+  else if(solution == 1)
+    {
+      for(i=0; i<length; i++)
+	{
+	  printf("%d", prevState[i]);
+	}
+      printf("\n");
+    }
+}
