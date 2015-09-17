@@ -14,7 +14,7 @@ void ConvertToCellArray(char *s, int length, Cell* life);
 void PrintCurrentCellArray(Cell *life, int length);
 void PrintPreviousCellArray(Cell *life, int length);
 void SetPrevVal(Cell *cell, int value);
-int CheckCells(Cell *c1, Cell *c2);
+int CheckCells(Cell c1, Cell c2);
 int PropogateAndCheck(Cell **life, int index, int length);
 void GetPreviousState(Cell **life, int length);
 
@@ -64,96 +64,97 @@ void PrintPreviousCellArray(Cell *life, int length)
       printf("%d", life[i].prev);
     }
 }
-/*
+
 void SetPrevVal(Cell *cell, int value)
 {
   cell->prev = value;
   cell->changed = (cell->prev == cell->current) ? 0 : 1;
   return;
 }
-*/
 
-int CheckCells(Cell *c1, Cell *c2)
+
+int CheckCells(Cell c1, Cell c2)
 {
-  return ((c1->current == c2->current) && (c1->prev == c2->prev) && (c1->changed == c2->changed)) ? 1 : 0;
+  return ((c1.current == c2.current) && (c1.prev == c2.prev) && (c1.changed == c2.changed)) ? 1 : 0;
 }
 
 
 int PropogateAndCheck(Cell **life, int index, int length)
 {
-  Cell *testNode = life[(index-1)%length];
-  int terminal = (index-1)%length;
-  int temp = (index+1)%length;
+  
+  int last = (length-1);
+  Cell testNode = (*life)[last];
+  int current = index+1;
+  Cell *temp = *life;
+  
 
-  while(temp != terminal)
+  while(current != last)
     {
-      if(life[temp]->changed == 1)
+      if(temp[current].changed == 1)
 	{
-	  int j = life[(temp-1)%length]->prev;
-	  SetPrevVal(life[(temp+1)%length], 1-j);	    
+	  int j = temp[current-1].prev;
+	  SetPrevVal(&temp[current+1], 1-j);
+	     	    
 	}
       else
 	{
-	  int j = life[(temp-1)%length]->prev;
-	  SetPrevVal(life[(temp+1)%length], j);
+	  int j = temp[current-1].prev;
+	  SetPrevVal(&temp[current+1], j);
+  
 	}
-      temp = (temp + 1) % length;
+      current++;
     }
-  if(CheckCells(life[temp], testNode))
-    {
-      return 1;
-    }
-  return 0;
+
+  return CheckCells(temp[current], testNode);
+   
 }
 
 void GetPreviousState(Cell **life, int length)
 {
-  int index,i,j = 0;
+  int i,j = 0;
   int solution = 0;
   int prevState[length];
-
+  
   int ch = 0;
+
   for(ch = 0; ch < 2; ch++)
     {
-      life[index]->changed = ch;
+      life[0]->changed = ch;
       for(j=0; j<2; j++)
-	{
-	  
+	{	  
 	  if(ch == 0)
 	    {
-	      life[index]->prev = life[index]->current;	
-	      //SetPrevVal(life[(index+1)%length], j);
-	      Cell cell = *(life[1]);
-	      cell->prev = j;
-	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	      life[0]->prev = life[0]->current;	
+	      SetPrevVal((*life)+1, j);
+	      //life[1]->prev = j;
+	      //life[1]->changed = (cell->prev == cell->current) ? 0 : 1;   
 	     
-	      //SetPrevVal(life[(index-1) % length], j);
-	      cell = *(life[length-1]);
-	      cell->prev = j;
-	      cell->changed = (cell->prev == cell->current) ? 0 : 1;  
+	      SetPrevVal((*life)+length-1, j);
+	     // life[length-1]->prev = j;
+	     //life[length-1]->changed = (life[length-1]->prev == life[length-1]->current) ? 0 : 1;  
 	    }
 	  else
 	    {
-	      life[index]->prev = 1-life[index]->current;
-	      //SetPrevVal(life[(index+1) % length], 1-j);
-	      Cell cell = *(life[1]);
-	      cell->prev = 1-j;
-	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	      life[0]->prev = 1-life[0]->current;
+	      SetPrevVal((*life) + 1, 1-j);
 	     
-	      //SetPrevVal(life[(index-1) % length], j);
-	      Cell cell = *(life[length-1]);
-	      cell->prev = j;
-	      cell->changed = (cell->prev == cell->current) ? 0 : 1;   
+	      // life[1]->prev = 1-j;
+	      // life[1]->changed = (life[1]->prev == life[1]->current) ? 0 : 1;   
+	     
+	      SetPrevVal((*life) + length-1, j);
+	      
+	      //life[length-1]->prev = j;
+	      //life[length-1]->changed = (life[length-1]->prev == life[length-1]->current) ? 0 : 1;  
 	     
 	    }
 
-	  solution += PropogateAndCheck(life, index, length);
+	  solution += PropogateAndCheck(life, 0, length);
 	  if(solution == 1)
 	    {
 	      int prevState[length];
 	      for(i=0; i<length; i++)
 		{
-		  prevState[i] = life[i]->prev;
+		  prevState[i] = (*life)[i].prev;
 		}
 	    }
 	}
