@@ -1,21 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Stacks.h"
+#include "Stacks.h";
 
-int * Factorize(int n)
+#define TRUE 1;
+#define FALSE 0;
+#define MAX 1000000;
+
+typedef struct Factors
 {
-	int i = 0, j=0;
-	int *factors = (int*)malloc(n * sizeof(int));
+	int *factorArray;
+	int size;
+}Factors;
+
+Factors* Factorize(int n)
+{
+	int i = 0, j=0;	
+	
+	int *tempArray = (int*)malloc(n * sizeof(int));
 	
 	for(i=0; i<=n; i++)
 	{
 		if(n%i == 0)
 		{
-			factors[j++] = i;
+			tempArray[j++] = i;
 		}
 	}
 	
-	realloc(factors, (size_t)j);
+	Factors *factors = (Factors *)malloc(sizeof(Factors));
+	factors->factorArray = (int *)malloc(j * sizeof(int));
+	
+	for(i = 0; i< j; i++)
+	{
+		factors->factorArray[i] = tempArray[i];
+	}
+	
+	
 	
 	return factors;
 }
@@ -39,11 +58,15 @@ Node* CreateNode(int val)
 	return newNode;
 }
 
-Node** CreateTree(int *factors, int factorCount)
+Node** CreateTree(Factors *factArray)
 {
 	int i=0;
 	
+	int factorCount = factArray->size;
+	int *factors = factArray->factorArray;
+	
 	Node ** nodeArray = (Node **)malloc(factorCount * sizeof(Node*));
+	
 	
 	for(i=0; i<factorCount; i++)
 	{
@@ -84,18 +107,25 @@ Node** CreateTree(int *factors, int factorCount)
 
 //perform DFS and increase count everytime the destination node is reached
 
-//Stack operations
-
-
-int GozintaChainCount(Node *nodeArray, int factorCount, int numValue)
+int GozintaChainCount(Node *nodeArray, Factors* factArray, int numValue)
 {
+	
+	int factorCount = factArray->size;
+	
 	Stack *stack = InitStack(factorCount);	
 	Push(&stack, 0);
 	int i=0;
+	int chainCount = 0;
 	
 	while(stack->top >= 0)
 	{
 		int currentIndex = Pop(&stack);
+		if(currentIndex == factorCount-1)
+		{
+			chainCount++;
+			continue;
+		}
+		
 		Node *temp = nodeArray[currentIndex];
 		
 		for(i = 0; i < temp->nextArraySize; i++)
@@ -104,4 +134,33 @@ int GozintaChainCount(Node *nodeArray, int factorCount, int numValue)
 		}
 	}
 	
+	return chainCount;
+}
+
+
+int IsCriteriaSatisfied(int num)
+{
+	Factors *factorArray = Factorize(num);	
+	Node **nodeArray = CreateTree(factorArray);
+	
+	int chainCount = GozintaChainCount(*nodeArray, factorArray, num);
+	
+	return (chainCount == num) ? TRUE : FALSE;
+	
+}
+
+int CriteriaSatisfyingNumberSum()
+{
+	int i=0;
+	int sum = 0;
+	for(i = 0; i < MAX; i++)
+	{
+		if(IsCriteriaSatisfied(i))
+		{
+			sum += i;
+			continue;
+		}
+	}
+	
+	return sum;
 }
