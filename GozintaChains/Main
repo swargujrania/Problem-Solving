@@ -1,0 +1,9 @@
+#include "GozintaChainLibrary.h";
+
+int main()
+{
+	//max = 100
+	int sum = CriteriaSatisfyingNumberSum();
+	printf("the required sum is %d\n", sum);
+	return 0;
+}
